@@ -28,11 +28,15 @@ class ChatBot(discord.Client):
             #loop through previous 20 messages between the bot and the user, and add them to the messages list only if the message is from the user mentioning the bot or if the message is from the bot replying to the user
             async for msg in message.channel.history(limit=20):
                 if msg.author == self.user and message.author.mentioned_in(msg):
-                    messages.insert(0, {"role": "system", "content": msg.content})
+                    messages.insert(0, {"role": "assistant", "content": msg.content})
                 elif self.user.mentioned_in(msg):
                     messages.insert(0, {"role": "user", "content": msg.content})
 
+            #Add Bot Instructions
+            messages.insert(0, {"role": "system", "content": "You are talking to a GPT-4 chatbot. The chatbot is very friendly and helpful"})
 
+
+            # Send the messages to OpenAI to get a response
             response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=messages
