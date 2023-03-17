@@ -22,7 +22,16 @@ class ChatBot(discord.Client):
 
         # If a message mentions the bot, then reply
         if self.user.mentioned_in(message):
-            messages = [{"role": "user", "content": message.content}]
+            # Get previous messages
+            messages = []
+
+            #loop through previous 20 messages between the bot and the user, and add them to the messages list only if the message is from the user mentioning the bot or if the message is from the bot replying to the user
+            async for msg in message.channel.history(limit=20):
+                if msg.author == self.user and message.author.mentioned_in(msg):
+                    messages.insert(0, {"role": "system", "content": msg.content})
+                elif self.user.mentioned_in(msg):
+                    messages.insert(0, {"role": "user", "content": msg.content})
+
 
             response = openai.ChatCompletion.create(
                 model="gpt-4",
